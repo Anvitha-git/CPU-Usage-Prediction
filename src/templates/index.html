@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPU Usage Prediction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb; /* Royal Blue */
+            --primary-hover: #1d4ed8;
+            --bg-gradient-start: #eff6ff;
+            --bg-gradient-end: #dbeafe;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --input-focus-ring: rgba(37, 99, 235, 0.2);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: var(--card-bg);
+            padding: 3rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 480px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        h2 {
+            text-align: center;
+            color: var(--text-color);
+            margin-bottom: 2.5rem;
+            font-weight: 700;
+            font-size: 1.875rem;
+            letter-spacing: -0.025em;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            font-size: 0.925rem;
+        }
+        input {
+            width: 100%;
+            padding: 0.875rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+            background-color: #f8fafc;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px var(--input-focus-ring);
+        }
+        button {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1), 0 2px 4px -1px rgba(37, 99, 235, 0.06);
+        }
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.1), 0 4px 6px -2px rgba(37, 99, 235, 0.05);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        #result {
+            margin-top: 2rem;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary-color);
+            min-height: 1.5rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background-color: #eff6ff;
+            display: none; /* Hidden by default */
+        }
+        .footer {
+            margin-top: 2.5rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.5rem;
+        }
+        .heart {
+            color: #ef4444;
+            display: inline-block;
+            animation: beat 1.5s infinite;
+        }
+        @keyframes beat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>CPU Usage Prediction</h2>
+        <form id="predictForm">
+            <div class="form-group">
+                <label for="cpu_request">CPU Request (cores)</label>
+                <input type="number" step="any" id="cpu_request" name="cpu_request" placeholder="e.g. 100" required>
+            </div>
+            <div class="form-group">
+                <label for="mem_request">Memory Request (MiB)</label>
+                <input type="number" step="any" id="mem_request" name="mem_request" placeholder="e.g. 256" required>
+            </div>
+            <div class="form-group">
+                <label for="cpu_limit">CPU Limit (cores)</label>
+                <input type="number" step="any" id="cpu_limit" name="cpu_limit" placeholder="e.g. 200" required>
+            </div>
+            <div class="form-group">
+                <label for="mem_limit">Memory Limit (MiB)</label>
+                <input type="number" step="any" id="mem_limit" name="mem_limit" placeholder="e.g. 512" required>
+            </div>
+            <div class="form-group">
+                <label for="runtime_minutes">Runtime (minutes)</label>
+                <input type="number" step="any" id="runtime_minutes" name="runtime_minutes" placeholder="e.g. 60" required>
+            </div>
+            
+            <button type="submit">Predict Usage</button>
+        </form>
+        <div id="result"></div>
+        
+        <div class="footer">
+            Made with <span class="heart">❤</span> by Anvitha
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('predictForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const resultDiv = document.getElementById('result');
+            const originalText = btn.innerText;
+            
+            btn.innerText = 'Predicting...';
+            btn.disabled = true;
+            resultDiv.style.display = 'none';
+
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Convert numbers and validate
+            const fields = ['cpu_request', 'mem_request', 'cpu_limit', 'mem_limit', 'runtime_minutes'];
+            for (const k of fields) {
+                const val = parseFloat(data[k]);
+                if (isNaN(val) || val < 0) {
+                    resultDiv.innerText = `Error: Invalid value for ${k}`;
+                    resultDiv.style.display = 'block';
+                    resultDiv.style.color = '#ef4444';
+                    resultDiv.style.backgroundColor = '#fef2f2';
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                    return;
+                }
+                data[k] = val;
+            }
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                resultDiv.style.display = 'block';
+                
+                if (result.prediction !== undefined) {
+                    const percent = (result.prediction * 100).toFixed(2);
+                    resultDiv.innerText = 'Predicted CPU Usage: ' + percent + '%';
+                    resultDiv.style.color = '#2563eb';
+                    resultDiv.style.backgroundColor = '#eff6ff';
+                } else {
+                    resultDiv.innerText = 'Error: ' + result.error;
+                    resultDiv.style.color = '#ef4444';
+                    resultDiv.style.backgroundColor = '#fef2f2';
+                }
+            } catch (err) {
+                resultDiv.style.display = 'block';
+                resultDiv.innerText = 'Error: Failed to connect to server';
+                resultDiv.style.color = '#ef4444';
+                resultDiv.style.backgroundColor = '#fef2f2';
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
